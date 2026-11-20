@@ -165,13 +165,16 @@
       name: 'Tilted Snaps',
       blurb: 'Three tilted polaroids',
       panels: function (art, g) {
+        // Polaroid height includes the caption strip below the photo, so
+        // size the photo to leave room for it inside the art area.
+        var ph = art.h * 0.74;
+        var totalH = ph * 1.14;
+        var cy = art.y + (art.h - totalH) / 2;
         var pw = art.w * 0.31;
-        var ph = art.h * 0.82;
-        var cy = art.y + (art.h - ph) / 2;
         return [
-          { x: art.x + art.w * 0.02, y: cy - art.h * 0.03, w: pw, h: ph, rot: -0.09, polaroid: true },
+          { x: art.x + art.w * 0.02, y: cy - art.h * 0.02, w: pw, h: ph, rot: -0.09, polaroid: true },
           { x: art.x + art.w * 0.345, y: cy + art.h * 0.02, w: pw, h: ph, rot: 0.02, polaroid: true },
-          { x: art.x + art.w * 0.67, y: cy - art.h * 0.03, w: pw, h: ph, rot: 0.08, polaroid: true },
+          { x: art.x + art.w * 0.67, y: cy - art.h * 0.02, w: pw, h: ph, rot: 0.08, polaroid: true },
         ];
       },
     },
@@ -537,7 +540,10 @@
     for (var i = 0; i < layout.panels.length; i++) {
       var p = layout.panels[i];
       var photoIdx = state.assign && state.assign[i] != null ? state.assign[i] : i % Math.max(1, (state.photos || []).length);
-      var img = state.photos && state.photos[photoIdx];
+      var photo = state.photos && state.photos[photoIdx];
+      // Photos arrive as { img, label } from the editor, or as bare images.
+      var img = photo && (photo.img || photo);
+      var label = photo && (photo.label || (photo.dataset && photo.dataset.label));
       var crop = (state.crops && state.crops[i]) || { zoom: 1, fx: 0.5, fy: 0.5 };
       ctx.save();
       if (p.rot) {
@@ -564,7 +570,7 @@
         ctx.font = Math.max(12, Math.round(p.h * 0.05)) + 'px Anton, "Arial Black", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(img && img.dataset && img.dataset.label ? img.dataset.label.toUpperCase() : 'SNAPSHOT ' + (i + 1), p.w / 2, p.h + p.h * 0.07);
+        ctx.fillText(label ? label.toUpperCase() : 'SNAPSHOT ' + (i + 1), p.w / 2, p.h + p.h * 0.07);
       } else {
         var rect = { x: 0, y: 0, w: p.w, h: p.h };
         if (img) drawGradedPhoto(ctx, img, rect, crop, grade);

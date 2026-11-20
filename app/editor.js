@@ -46,7 +46,9 @@
     while (state.assign.length < n) state.assign.push(state.photos.length ? (state.assign.length % state.photos.length) : 0);
     while (state.crops.length < n) {
       var i = state.crops.length;
-      state.crops.push({ zoom: 1, fx: 0.3 + 0.4 * ((i * 7) % 10) / 10, fy: 0.35 + 0.3 * ((i * 3) % 10) / 10 });
+      // Default crops favour the upper part of a portrait photo, where
+      // faces usually are, and spread sideways so panels differ.
+      state.crops.push({ zoom: 1.05, fx: 0.35 + 0.3 * ((i * 7) % 10) / 10, fy: 0.14 + 0.12 * ((i * 3) % 10) / 10 });
     }
     state.assign.length = n;
     state.crops.length = n;
@@ -111,6 +113,9 @@
     state.selectedPhoto = state.photos.length - 1;
     buildPhotoStrip();
     ensurePanelState();
+    // A new photo joins the mix: deal the panels across all photos again
+    // so the cover shows every photo, not just the first.
+    for (var i = 0; i < state.assign.length; i++) state.assign[i] = i % state.photos.length;
     render();
   }
 
@@ -200,7 +205,7 @@
       state.crops[i] = {
         zoom: 1.15,
         fx: 0.25 + 0.5 * ((i * 2 + 1) % 3) / 2,
-        fy: 0.3 + 0.4 * ((i * 3 + 1) % 3) / 2,
+        fy: 0.15 + 0.15 * ((i * 3 + 1) % 3) / 2,
       };
     }
     render();
