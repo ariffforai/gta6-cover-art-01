@@ -16,7 +16,7 @@
   var sizeKey = 'landscape';
   var assignMode = 'mix';
   var selectedPanel = 0;
-  var panelsByLayout = { 'vice-grid': state.panels };
+  var panelsByLayout = {};
   var photos = [];
   var fontsReady = false;
 
@@ -83,7 +83,7 @@
       list = CoverArt.defaultPanels(layoutId, photos.length);
       panelsByLayout[layoutId] = list;
     }
-    while (list.length < n) list.push({ photo: 0, zoom: 1, ox: 0, oy: 0 });
+    while (list.length < n) list.push({ photo: 0, zoom: 1, ox: 0, oy: 0, autoCrop: true });
     if (list.length > n) list.length = n;
     return list;
   }
@@ -283,8 +283,9 @@
       var px = ((e.clientX - rect.left) / rect.width) * canvas.width;
       var py = ((e.clientY - rect.top) / rect.height) * canvas.height;
       var pan = currentPanel();
-      pan.ox = Math.max(-0.6, Math.min(0.6, drag.ox + (px - drag.x) / drag.rect.w));
-      pan.oy = Math.max(-0.6, Math.min(0.6, drag.oy + (py - drag.y) / drag.rect.h));
+      pan.autoCrop = false;
+      pan.ox = Math.max(-0.8, Math.min(0.8, drag.ox + (px - drag.x) / drag.rect.w));
+      pan.oy = Math.max(-0.8, Math.min(0.8, drag.oy + (py - drag.y) / drag.rect.h));
       render();
     });
     canvas.addEventListener('pointerup', function () { drag = null; });
@@ -294,6 +295,7 @@
       if (!hit) return;
       selectedPanel = hit.index;
       var pan = currentPanel();
+      pan.autoCrop = false;
       pan.zoom = Math.max(1, Math.min(3, pan.zoom * Math.exp(-e.deltaY * 0.0012)));
       render();
     }, { passive: false });
@@ -325,6 +327,7 @@
   /* ---------------------------------------------------------- boot */
 
   function init() {
+    state.panels = ensurePanels(state.layout);
     buildButtons('layoutRow', CoverArt.LAYOUTS, setLayout);
     buildButtons('gradeRow', CoverArt.GRADE_IDS.map(function (id) {
       return { id: id, name: CoverArt.GRADES[id].name };
@@ -410,21 +413,27 @@
     var zoomSlider = $('zoomSlider');
     if (zoomSlider) {
       zoomSlider.addEventListener('input', function () {
-        currentPanel().zoom = parseFloat(zoomSlider.value) || 1;
+        var pan = currentPanel();
+        pan.autoCrop = false;
+        pan.zoom = parseFloat(zoomSlider.value) || 1;
         render();
       });
     }
     var panXSlider = $('panXSlider');
     if (panXSlider) {
       panXSlider.addEventListener('input', function () {
-        currentPanel().ox = parseFloat(panXSlider.value) || 0;
+        var pan = currentPanel();
+        pan.autoCrop = false;
+        pan.ox = parseFloat(panXSlider.value) || 0;
         render();
       });
     }
     var panYSlider = $('panYSlider');
     if (panYSlider) {
       panYSlider.addEventListener('input', function () {
-        currentPanel().oy = parseFloat(panYSlider.value) || 0;
+        var pan = currentPanel();
+        pan.autoCrop = false;
+        pan.oy = parseFloat(panYSlider.value) || 0;
         render();
       });
     }
@@ -449,7 +458,10 @@
 
     Promise.all([staged, fonts]).then(function () {
       render();
-      if (shot) window.__shotReady = true;
+      if (shot) {
+        window.__shotReady = true;
+        setStatus('Sample photos loaded — drag any panel to reposition it, then export.');
+      }
     });
     render();
   }

@@ -166,17 +166,32 @@
 
   /**
    * Default per-panel settings for a layout: photos cycle through the
-   * loaded set, wide panels start cropped a touch high so faces stay
-   * in frame, tall panels stay centred.
+   * loaded set. autoCrop stays on until the user drags or slides a
+   * panel, so the engine can re-aim wide panels at face height for
+   * whatever size is being drawn.
    */
   COVER.defaultPanels = function (layoutId, photoCount) {
     var n = COVER.panelCount(layoutId);
     var out = [];
     for (var i = 0; i < n; i++) {
-      out.push({ photo: photoCount > 0 ? i % photoCount : 0, zoom: 1, ox: 0, oy: 0 });
+      out.push({ photo: photoCount > 0 ? i % photoCount : 0, zoom: 1, ox: 0, oy: 0, autoCrop: true });
     }
     return out;
   };
+
+  /**
+   * The pan a panel is actually drawn with: the user's own offsets,
+   * plus an automatic lift for wide panels, which otherwise show only
+   * the middle band of a photo and cut faces off at the top.
+   */
+  function effectivePan(pan, rect) {
+    var out = { photo: pan.photo, zoom: pan.zoom || 1, ox: pan.ox || 0, oy: pan.oy || 0 };
+    if (pan.autoCrop !== false) {
+      var aspect = rect.w / rect.h;
+      out.oy += aspect > 2.2 ? 0.55 : aspect > 1.5 ? 0.35 : aspect > 1.1 ? 0.15 : 0;
+    }
+    return out;
+  }
 
   /** Cover-fit a photo into a rect, honouring zoom and pan offsets. */
   function drawPhotoIn(ctx, img, rect, pan, grade) {
@@ -278,13 +293,13 @@
     g.addColorStop(1, bottom);
     ctx.save();
     ctx.fillStyle = g;
-    var slices = 14;
+    var slices = 22;
     for (var i = 0; i < slices; i++) {
       var y0 = cy - r + (2 * r * i) / slices;
       var y1 = cy - r + (2 * r * (i + 1)) / slices;
       var mid = (y0 + y1) / 2;
       var half = Math.sqrt(Math.max(0, r * r - (mid - cy) * (mid - cy)));
-      var cut = i < slices / 2 ? 0 : (i - slices / 2) * ((2 * r) / slices) * 0.16;
+      var cut = i < slices * 0.55 ? 0 : (i - slices * 0.55) * ((2 * r) / slices) * 0.1;
       ctx.fillRect(cx - half, y0, half * 2, Math.max(0.5, y1 - y0 - cut));
     }
     ctx.restore();
@@ -355,16 +370,20 @@
     ctx.fillStyle = rule;
     ctx.fillRect(x, y, w, Math.max(3, Math.round(h * 0.03)));
 
-    var sunR = Math.round(h * 0.52);
-    var sunCx = Math.round(x + w - sunR * 1.15);
-    var sunCy = Math.round(y + h * 0.46);
+    /* Zones: title on the left, slit sun in the middle-right, badge
+     * and heat meter stacked at the far right — nothing overlaps.
+     * Every right-hand width is fitted to its zone, so a narrow
+     * portrait band stays clean too. */
+    var sunR = Math.round(h * 0.36);
+    var sunCx = Math.round(x + w * 0.62);
+    var sunCy = Math.round(y + h * 0.52);
     drawSlitSun(ctx, sunCx, sunCy, sunR, '#ffd319', '#ff2e88');
 
     drawPalm(ctx, x + pad * 0.4, y + h - 2, h / 130, '#0d0218', 1);
-    drawPalm(ctx, x + w - pad * 0.5, y + h - 2, h / 170, '#0d0218', -1);
 
     var title = (state.title || 'NEON SHORE').toUpperCase();
-    var titleMaxW = Math.round(w * 0.62);
+    var titleX = x + pad * 2.1;
+    var titleMaxW = Math.max(120, sunCx - sunR - Math.round(w * 0.02) - titleX);
     var titleSize = fitFont(ctx, title, titleMaxW, Math.round(h * 0.5), 'Anton, sans-serif', '400');
     var titleGrad = ctx.createLinearGradient(0, y + h * 0.14, 0, y + h * 0.72);
     titleGrad.addColorStop(0, '#fff3b0');
@@ -376,7 +395,6 @@
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#14041f';
     ctx.lineWidth = Math.max(2, Math.round(titleSize * 0.09));
-    var titleX = x + pad * 2.1;
     var titleY = y + h * 0.52;
     ctx.strokeText(title, titleX, titleY);
     ctx.fillStyle = titleGrad;
@@ -384,7 +402,7 @@
 
     var sub = state.subtitle || '';
     if (sub) {
-      var subSize = fitFont(ctx, sub, Math.round(w * 0.5), Math.round(h * 0.2), 'Pacifico, cursive', '400');
+      var subSize = fitFont(ctx, sub, Math.round(titleMaxW * 0.85), Math.round(h * 0.2), 'Pacifico, cursive', '400');
       ctx.font = '400 ' + subSize + 'px Pacifico, cursive';
       ctx.fillStyle = '#7ef9ff';
       ctx.shadowColor = '#ff2e88';
@@ -393,11 +411,11 @@
       ctx.shadowBlur = 0;
     }
 
-    var starR = Math.max(7, Math.round(h * 0.085));
+    var starR = Math.max(7, Math.round(h * 0.065));
     var starsW = starR * 2 * 5 + starR * 4 * 0.6;
     var starsX = Math.round(x + w - pad - starsW);
-    var starsY = Math.round(y + h * 0.82);
-    ctx.font = '400 ' + Math.round(h * 0.11) + 'px Anton, sans-serif';
+    var starsY = Math.round(y + h * 0.8);
+    ctx.font = '400 ' + Math.round(h * 0.1) + 'px Anton, sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.75)';
     ctx.textAlign = 'left';
     ctx.fillText('HEAT', starsX, starsY - starR - Math.round(h * 0.05));
@@ -415,10 +433,11 @@
     }
 
     var badgeText = state.badge || 'Sunset City • Est. 2026';
-    var badgeSize = Math.max(11, Math.round(h * 0.13));
+    var badgeZoneW = Math.round(w * 0.2);
+    var badgeSize = fitFont(ctx, badgeText, Math.max(60, badgeZoneW - Math.round(pad * 1.2)), Math.max(11, Math.round(h * 0.13)), 'Anton, sans-serif', '400');
     ctx.font = '400 ' + badgeSize + 'px Anton, sans-serif';
-    var badgeW = ctx.measureText(badgeText).width + pad * 1.6;
-    var badgeH = Math.round(h * 0.24);
+    var badgeW = ctx.measureText(badgeText).width + pad * 1.2;
+    var badgeH = Math.max(Math.round(h * 0.16), Math.min(Math.round(h * 0.26), Math.round(badgeSize * 2.4)));
     var badgeX = Math.round(x + w - pad - badgeW);
     var badgeY = Math.round(y + pad * 0.9);
     ctx.fillStyle = 'rgba(255,46,136,0.16)';
@@ -488,7 +507,11 @@
       sky.addColorStop(1, '#ff7b2f');
       ctx.fillStyle = sky;
       ctx.fillRect(0, 0, W, H);
-      drawSlitSun(ctx, Math.round(W * 0.5), Math.round(H * 0.3), Math.round(Math.min(W, H) * 0.16), '#ffe66d', '#ff5e78');
+      var glow = ctx.createRadialGradient(W * 0.5, H * 0.32, 10, W * 0.5, H * 0.32, Math.min(W, H) * 0.42);
+      glow.addColorStop(0, 'rgba(255, 214, 90, 0.28)');
+      glow.addColorStop(1, 'rgba(255, 214, 90, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
     } else {
       ctx.fillStyle = '#12041f';
       ctx.fillRect(0, 0, W, H);
@@ -496,7 +519,7 @@
 
     if (geo.overlay) {
       geo.panels.forEach(function (rect, i) {
-        var pan = panels[i] || { photo: 0, zoom: 1, ox: 0, oy: 0 };
+        var pan = effectivePan(panels[i] || { photo: 0, zoom: 1, ox: 0, oy: 0 }, rect);
         var photo = photos[pan.photo] ? photos[pan.photo].img : null;
         if (photo) drawPhotoIn(ctx, photo, rect, pan, grade);
         else drawEmptyPanel(ctx, rect, grade);
@@ -508,7 +531,7 @@
       ctx.fillRect(0, geo.band.y - geo.band.h * 0.7, W, geo.band.h * 1.7);
     } else {
       geo.panels.forEach(function (rect, i) {
-        var pan = panels[i] || { photo: 0, zoom: 1, ox: 0, oy: 0 };
+        var pan = effectivePan(panels[i] || { photo: 0, zoom: 1, ox: 0, oy: 0 }, rect);
         var photo = photos[pan.photo] ? photos[pan.photo].img : null;
         if (layoutId === 'tilted-snaps') {
           var caption = photo && photos[pan.photo].label ? photos[pan.photo].label : '';
