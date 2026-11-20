@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Sunset Cover Studio — GTA-style cover art from any photo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">&#9733;</span>
+    <div>
+      <h1>Neon Sunset Cover Studio</h1>
+      <p>Turn any photo into GTA-style multi-panel cover art &mdash; offline, on your machine.</p>
+    </div>
+  </div>
+  <ol class="steps" aria-label="Steps">
+    <li data-step="1" class="on"><b>1</b> Photos</li>
+    <li data-step="2"><b>2</b> Layout</li>
+    <li data-step="3"><b>3</b> Caption &amp; grade</li>
+    <li data-step="4"><b>4</b> Export PNG</li>
+  </ol>
+</header>
+
+<main class="workspace">
+  <aside class="controls" aria-label="Cover controls">
+    <section class="panel" id="photos-panel">
+      <h2>Your photos</h2>
+      <p class="hint">Photos never leave this machine. Add one photo or several &mdash; one photo can fill every panel, or each panel can hold its own.</p>
+      <div class="photo-actions">
+        <label class="btn primary" for="photo-input">Add photos&hellip;</label>
+        <input id="photo-input" type="file" accept="image/*" multiple hidden>
+        <button class="btn" id="sample-btn" type="button">Use sample photos</button>
+      </div>
+      <div class="photo-strip" id="photo-strip" aria-label="Loaded photos"></div>
+      <div class="row">
+        <button class="btn small" id="fill-one-btn" type="button">One photo, all panels</button>
+        <button class="btn small" id="mix-btn" type="button">Mix photos across panels</button>
+      </div>
+    </section>
+
+    <section class="panel" id="layout-panel">
+      <h2>Layout</h2>
+      <div class="layout-grid" id="layout-grid"></div>
+      <h3 class="subhead">Panel <span id="panel-label">1</span> &mdash; crop &amp; position</h3>
+      <p class="hint">Click a panel in the preview to pick it, then drag the photo inside it, or use the sliders.</p>
+      <label class="slider-label">Zoom <span id="zoom-val">1.0&times;</span>
+        <input id="zoom" type="range" min="1" max="3" step="0.05" value="1">
+      </label>
+      <label class="slider-label">Left &ndash; right
+        <input id="pan-x" type="range" min="0" max="1" step="0.01" value="0.5">
+      </label>
+      <label class="slider-label">Top &ndash; bottom
+        <input id="pan-y" type="range" min="0" max="1" step="0.01" value="0.5">
+      </label>
+    </section>
+
+    <section class="panel" id="caption-panel">
+      <h2>Caption &amp; grade</h2>
+      <label class="field-label">Title
+        <input id="title-input" type="text" value="NEON SHORE" maxlength="24" autocomplete="off">
+      </label>
+      <label class="field-label">Subtitle
+        <input id="subtitle-input" type="text" value="a sunset city story" maxlength="48" autocomplete="off">
+      </label>
+      <div class="grade-grid" id="grade-grid" aria-label="Colour grade"></div>
+    </section>
+
+    <section class="panel" id="export-panel">
+      <h2>Export</h2>
+      <div class="size-grid" id="size-grid" aria-label="Export size"></div>
+      <button class="btn primary big" id="export-btn" type="button">Export PNG</button>
+      <button class="btn big" id="export-all-btn" type="button">Export all three sizes</button>
+      <p class="hint" id="export-status" role="status">Ready. Pick a size and export.</p>
+    </section>
+  </aside>
+
+  <section class="preview" aria-label="Live preview">
+    <div class="preview-head">
+      <h2>Live preview</h2>
+      <span class="preview-size" id="preview-size-label">1920 &times; 1080</span>
+    </div>
+    <div class="canvas-wrap" id="canvas-wrap">
+      <canvas id="preview-canvas" width="960" height="540"></canvas>
+      <p class="preview-tip">Drag a panel&rsquo;s photo to reposition it &middot; scroll over a panel to zoom</p>
+    </div>
+    <p class="offline-note">100% offline &middot; your photos stay on your machine &middot; own art and lettering only &mdash; no game logos, artwork or fonts.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Neon Sunset Cover Studio &mdash; an original cover maker. Fonts: Anton &amp; Pacifico under the SIL Open Font License (see <code>fonts/</code>). Sample photos are model-made for this app.</p>
+</footer>
+
+<!-- Sample photos, preloaded so the editor opens with art already in it. -->
+<img id="sample-boulevard" src="samples/boulevard.jpg" alt="" hidden data-label="Boulevard">
+<img id="sample-pier" src="samples/pier.jpg" alt="" hidden data-label="Pier">
+
+<script src="cover.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>
