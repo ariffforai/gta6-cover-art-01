@@ -1,41 +1,70 @@
-[![Make.fun](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/c/gta6-cover-art-01)
-[![Rank](https://make.fun/badge/gta6-cover-art-01/ariffforai/gta6-cover-art-01/rank.svg)](https://make.fun/c/gta6-cover-art-01)
-[![Reward](https://make.fun/badge/gta6-cover-art-01/ariffforai/gta6-cover-art-01/reward.svg)](https://make.fun/c/gta6-cover-art-01)
-
 # Neon Sunset Cover Studio
 
-Turn any photo into GTA-style multi-panel cover art — offline, in your browser, in four steps. Built for the [Make GTA 6 Cover Art](https://make.fun/c/gta6-cover-art-01) bounty on [make.fun](https://make.fun/c/gta6-cover-art-01).
+[![make.fun · gta6-cover-art-01](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+[![rank](https://make.fun/badge/gta6-cover-art-01/ariffforai/gta6-cover-art-01/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+[![reward](https://make.fun/badge/gta6-cover-art-01/ariffforai/gta6-cover-art-01/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 
-**1. Add photos → 2. Pick a layout → 3. Write the caption & grade → 4. Export a PNG.**
+An offline web app that turns any photo and a caption into GTA-style
+multi-panel cover art, exported as a PNG to share. Built for the
+[Make GTA 6 Cover Art](https://make.fun/c/gta6-cover-art-01) bounty on
+make.fun.
 
 ## What it does
 
-- **Any photo, any panel.** Load your own photos from your machine (they never leave it). Fill all nine panels with one photo, or give every panel its own. Click a panel, drag the photo inside it, scroll to zoom, or use the sliders — each panel crops and positions independently.
-- **Six poster layouts.** Vice Grid (nine-panel), Hero + Three, Full Bleed, Split Duo, Tilted Snaps (polaroids), and Story Columns.
-- **Five sunset / neon grades.** Vice Sunset, Neon Nights, Golden Hour, Hot Pink, Teal Noir — warm light, cool neon, and a film grain + vignette finish on every cover.
-- **Bold display lettering, your words.** An editable title in Anton with a sunset gradient fill and dark outline, a neon-script subtitle in Pacifico, a retro slit sun, hand-drawn palm silhouettes, and a five-star heat meter with a "Sunset City" badge ribbon.
-- **Three post sizes, one click.** Export PNG at 1920×1080, 1080×1080, or 1080×1350 — or all three at once.
-- **Live preview.** The preview is the exact cover the export writes, drawn by the same code.
+- **Six layouts** — Vice Grid (nine panels), Hero + Three, Full Bleed,
+  Split Duo, Tilted Snaps (polaroids) and Story Columns.
+- **Five sunset/neon grades** — Vice Sunset, Neon Nights, Golden Hour,
+  Hot Pink and Teal Noir, applied as canvas filters plus tint washes.
+- **Poster lettering, drawn in code** — a retro slit-sun title band with
+  hand-drawn palm silhouettes, an Anton title filled with a sunset
+  gradient, a Pacifico neon subtitle, a five-star heat meter and a
+  "Sunset City • Est. 2026" badge. Deterministic seeded grain and a
+  vignette finish every cover.
+- **Any photo** — load your own photos (they never leave your machine),
+  fill several panels with one photo or mix several, then crop and
+  position each panel by dragging, scrolling to zoom, or with sliders.
+- **Fast and easy** — photo to PNG in three steps, exported at the
+  common post sizes: 1920 × 1080, 1080 × 1080 and 1080 × 1350.
 
-## Run it
+## Try it
 
-Serve `app/` with any static server and open `index.html` — no build step, no network request:
+Serve `app/` with any static file server and open `app/index.html` in
+desktop Chrome. Everything runs offline: no network requests, no
+upload, no build step.
 
 ```sh
-python3 -m http.server --directory app 8080
+cd app && python3 -m http.server 8080
 # open http://localhost:8080
 ```
 
-Sample photos ship under `app/samples/` (model-made for this app) so the editor opens with art already in it.
+Click **Load sample photos** to try it with the two model-made sample
+shots shipped under `app/samples/`, or add your own photos instead.
+
+## Layout
+
+- `main.ts` — the entry program (Node 22, stdlib only): copies `app/`
+  and `screenshots/` to the output directory and writes
+  `dossier.json` via `vendor/makefun-app.ts`.
+- `app/index.html`, `app/style.css` — the editor page and its chrome.
+- `app/cover.js` — the cover engine: layouts, grades, title band,
+  palms, slit sun, grain, vignette.
+- `app/editor.js` — photo loading, per-panel crop/position, live
+  preview, PNG export, and the `?shot=cover` staging mode used for
+  the screenshots.
+- `app/fonts/` — Anton and Pacifico, shipped under the SIL Open Font
+  License (see each font's `OFL.txt`).
+- `app/samples/` — two model-made sample photos, free to use.
+- `screenshots/` — the cover and editor shots taken from the app
+  itself: an exported 1920 × 1080 cover, the editor with photos
+  loaded, an exported 1080 × 1350 cover and an exported 1080 × 1080
+  cover.
 
 ## Originality
 
-Everything here is original: the layouts, the lettering, the palm/sun art drawn in code, and the Anton + Pacifico fonts, both shipped under the SIL Open Font License (see `app/fonts/`). No Rockstar Games logo, wordmark, official artwork, character, or font appears anywhere.
-
-## How the entry is handed in
-
-`main.ts` (Node 22, standard library only) copies `app/` and `screenshots/` to `/output` (or `$MAKEFUN_OUTPUT_DIR` outside the grader) and writes `/output/dossier.json` with `buildDossier` from `vendor/makefun-app.ts`. Running it twice writes byte-identical output.
+All art and lettering here is original and drawn in code. No Rockstar
+Games logo, wordmark, official artwork, character or font is used
+anywhere in the app or its screenshots.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). SPDX-License-Identifier: MIT.
