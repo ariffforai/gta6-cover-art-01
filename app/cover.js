@@ -378,10 +378,12 @@ function drawTitleBand(ctx, W, bandH, grade, state) {
   const titleW = Math.max(60, titleX1 - titleX0);
   const cx = (titleX0 + titleX1) / 2;
 
-  // Palms flank the band, drawn dark against the grade background.
-  const palmS = bandH / 120;
-  drawPalm(ctx, 6, bandH * 0.98, palmS * 0.9, false, grade.palm);
-  drawPalm(ctx, W - 6, bandH * 0.98, palmS * 0.9, true, grade.palm);
+  // One palm silhouette flanks the sun on the left (drawn before the sun, so
+  // the sun covers its trunk and only the fronds show around the disc). The
+  // right side of the band holds the stars and badge, so no palm goes there —
+  // its fronds would cross the star meter.
+  const palmS = bandH / 150;
+  drawPalm(ctx, 6, bandH * 0.98, palmS, false, grade.palm);
 
   // Retro sun, left zone, kept clear of the title.
   const sunR = Math.min(bandH * 0.42, sunZoneW * 0.42);
