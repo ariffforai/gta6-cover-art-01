@@ -44,9 +44,9 @@ var CoverStudio = (function () {
       label: 'Tilted Snaps',
       polaroid: true,
       panels: [
-        { x: 0.04, y: 0.10, w: 0.40, h: 0.70, tilt: -4 },
-        { x: 0.30, y: 0.06, w: 0.40, h: 0.70, tilt: 2 },
-        { x: 0.56, y: 0.12, w: 0.40, h: 0.70, tilt: 5 }
+        { x: 0.03, y: 0.10, w: 0.38, h: 0.70, tilt: -4 },
+        { x: 0.31, y: 0.06, w: 0.38, h: 0.70, tilt: 2 },
+        { x: 0.59, y: 0.12, w: 0.38, h: 0.70, tilt: 5 }
       ]
     },
     'duo-split': {
@@ -445,15 +445,16 @@ var CoverStudio = (function () {
       ctx.fillRect(ix, iy, iw, ih);
       ctx.restore();
     }
-    // Caption inside the strip, fitted so it cannot overflow the card.
+    // Caption inside the strip, left-aligned so the next overlapping card
+    // never covers it, and fitted so it cannot overflow the card.
     ctx.fillStyle = '#221a2e';
-    ctx.textAlign = 'center';
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     var cap = label || '';
     if (cap) {
-      var size = fitFont(ctx, cap, pw - pad * 3, stripH * 0.62, 'Caveat', '700');
+      var size = fitFont(ctx, cap, pw * 0.62, stripH * 0.62, 'Caveat', '700');
       ctx.font = '700 ' + size + 'px "Caveat"';
-      ctx.fillText(cap, 0, ph / 2 - stripH / 2);
+      ctx.fillText(cap, -pw / 2 + pad * 1.6, ph / 2 - stripH / 2);
     }
     ctx.restore();
   }

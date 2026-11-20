@@ -556,6 +556,45 @@
     }
   }
 
+  // Bring every toolbar control in line with the state (used after staging
+  // applies query params, so the buttons show the staged layout and grade
+  // instead of the defaults the toolbar was built with).
+  function syncToolbarFromState() {
+    var layouts = Object.keys(studio.LAYOUTS).map(function (key) {
+      return { value: key, label: studio.LAYOUTS[key].label };
+    });
+    buildOptions($('layout-options'), layouts, state.layout, function (value) {
+      state.layout = value;
+      applyLayoutChange();
+    });
+    var grades = Object.keys(studio.GRADES).map(function (key) {
+      return { value: key, label: studio.GRADES[key].label };
+    });
+    buildOptions($('grade-options'), grades, state.grade, function (value) {
+      state.grade = value;
+      requestRender();
+    });
+    var sizes = Object.keys(studio.SIZES).map(function (key) {
+      return { value: key, label: key.replace('x', ' × ') };
+    });
+    buildOptions($('size-options'), sizes, selectedSize, function (value) {
+      selectedSize = value;
+      requestRender();
+    });
+    var title = $('title-input');
+    if (title) title.value = state.title;
+    var subtitle = $('subtitle-input');
+    if (subtitle) subtitle.value = state.subtitle;
+    var badge = $('badge-input');
+    if (badge) badge.value = state.badge;
+    var stars = $('heat-stars');
+    if (stars) {
+      var kids = stars.children;
+      for (var k = 0; k < kids.length; k++) kids[k].classList.toggle('on', k < state.heat);
+    }
+    syncAssignButtons();
+  }
+
   // ------------------------------------------------------------ staging
 
   // ?shot=cover renders one staged cover at export size for screenshots;
@@ -571,6 +610,7 @@
     if (params.badge) state.badge = params.badge.toUpperCase();
     if (params.heat) state.heat = clamp(parseInt(params.heat, 10) || 0, 0, 5);
     if (params.size && studio.SIZES[params.size]) selectedSize = params.size;
+    syncToolbarFromState();
     document.title = 'shot:' + shot;
     if (shot === 'cover') document.body.classList.add('shot-cover');
     return loadSamples().catch(function () {}).then(function () {
