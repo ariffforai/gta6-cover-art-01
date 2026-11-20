@@ -4,67 +4,87 @@
 [![rank](https://make.fun/badge/gta6-cover-art-01/ariffforai/gta6-cover-art-01/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 [![reward](https://make.fun/badge/gta6-cover-art-01/ariffforai/gta6-cover-art-01/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 
-An offline web app that turns any photo and a caption into GTA-style
-multi-panel cover art, exported as a PNG to share. Built for the
-[Make GTA 6 Cover Art](https://make.fun/c/gta6-cover-art-01) bounty on
-make.fun.
+**Neon Sunset Cover Studio** turns your photos and a caption into GTA-style
+multi-panel cover art — a Vice City sunset grade, bold display lettering, a
+retro-sun title band with palm silhouettes, a star heat meter and a badge
+ribbon — and exports it as a PNG to share. Built for the
+[Make GTA 6 Cover Art](https://make.fun/bounty/gta6-cover-art-01) bounty on
+[make.fun](https://make.fun).
 
 ## What it does
 
-- **Six layouts** — Vice Grid (nine panels), Hero + Three, Full Bleed,
-  Split Duo, Tilted Snaps (polaroids) and Story Columns.
-- **Five sunset/neon grades** — Vice Sunset, Neon Nights, Golden Hour,
-  Hot Pink and Teal Noir, applied as canvas filters plus tint washes.
-- **Poster lettering, drawn in code** — a retro slit-sun title band with
-  hand-drawn palm silhouettes, an Anton title filled with a sunset
-  gradient, a Pacifico neon subtitle, a five-star heat meter and a
-  "Sunset City • Est. 2026" badge. Deterministic seeded grain and a
-  vignette finish every cover.
-- **Any photo** — load your own photos (they never leave your machine),
-  fill several panels with one photo or mix several, then crop and
-  position each panel by dragging, scrolling to zoom, or with sliders.
-- **Fast and easy** — photo to PNG in three steps, exported at the
-  common post sizes: 1920 × 1080, 1080 × 1080 and 1080 × 1350.
+- **Six multi-panel layouts** — Vice Grid, Hero Three, Tilted Snaps
+  (polaroids), Duo Split, Single Hero and Film Strip — each with its own
+  panel geometry.
+- **Five sunset / neon grades** — Vice Sunset, Neon Nights, Golden Hour,
+  Hot Pink and Miami Dawn — that tint the photos and paint the title band.
+- **Any photo** — upload your own (they never leave your machine) or use
+  the two model-made samples. Crop and position each panel: drag to pan,
+  scroll to zoom, or use the sliders. One photo can fill every panel, or
+  photos can mix across panels.
+- **Editable caption** — title, subtitle, badge ribbon and a 0–5 star heat
+  meter, all live in the preview.
+- **Fast and easy** — a photo to a finished PNG in a few clicks, at the
+  three common post sizes: **1920 × 1080**, **1080 × 1080** and
+  **1080 × 1350**.
+- **Original art only** — the lettering, sun, palms, grades and grain are
+  drawn by the app. No Rockstar logo, artwork or font anywhere. The two
+  display fonts are vendored under `app/fonts/` under the SIL Open Font
+  License: Bebas Neue (titles) and Caveat (subtitles).
 
-## Try it
+## Run it
 
-Serve `app/` with any static file server and open `app/index.html` in
-desktop Chrome. Everything runs offline: no network requests, no
-upload, no build step.
+The app is static files under `app/` — no build step, no network. Serve
+the folder with any static server and open `app/index.html` in desktop
+Chrome:
 
 ```sh
-cd app && python3 -m http.server 8080
+python3 -m http.server 8080 --directory app
 # open http://localhost:8080
 ```
 
-Click **Load sample photos** to try it with the two model-made sample
-shots shipped under `app/samples/`, or add your own photos instead.
+1. Add photos (upload, drop onto the preview, or load the samples).
+2. Pick a layout and a grade.
+3. Type the title, subtitle and badge; set the heat.
+4. Click a panel, then drag, scroll or slide to crop it.
+5. Pick an export size and hit **Export PNG**.
+
+## Staging mode (for screenshots)
+
+`?shot=cover` renders one staged cover at export size with the editor
+chrome hidden; `?shot=editor` stages the editor with photos loaded. Both
+take `layout`, `grade`, `title`, `subtitle`, `badge`, `heat` and `size`
+parameters, for example:
+
+```text
+index.html?shot=cover&layout=vice-grid&grade=vice-sunset&title=NEON%20SHORE&size=1920x1080
+```
 
 ## Layout
 
-- `main.ts` — the entry program (Node 22, stdlib only): copies `app/`
-  and `screenshots/` to the output directory and writes
-  `dossier.json` via `vendor/makefun-app.ts`.
-- `app/index.html`, `app/style.css` — the editor page and its chrome.
-- `app/cover.js` — the cover engine: layouts, grades, title band,
-  palms, slit sun, grain, vignette.
-- `app/editor.js` — photo loading, per-panel crop/position, live
-  preview, PNG export, and the `?shot=cover` staging mode used for
-  the screenshots.
-- `app/fonts/` — Anton and Pacifico, shipped under the SIL Open Font
-  License (see each font's `OFL.txt`).
-- `app/samples/` — two model-made sample photos, free to use.
-- `screenshots/` — the cover and editor shots taken from the app
-  itself: an exported 1920 × 1080 cover, the editor with photos
-  loaded, an exported 1080 × 1350 cover and an exported 1080 × 1080
-  cover.
+- `app/index.html` — the page and editor chrome.
+- `app/style.css` — the dark neon editor theme and font faces.
+- `app/cover.js` — the render engine: layouts, grades, retro sun, palms,
+  star meter, badge ribbon, deterministic grain and vignette.
+- `app/editor.js` — photo upload, per-panel crop controls, assignment,
+  live preview, PNG export and staging mode.
+- `app/fonts/` — Bebas Neue + Caveat (SIL OFL), with licence texts.
+- `app/samples/` — two model-made sample photos.
+- `main.ts` — the entrypoint: copies `app/` and `screenshots/` to the
+  output directory and writes `dossier.json` with `buildDossier` from
+  `vendor/makefun-app.ts` (the kit's copy, unchanged).
+- `screenshots/` — four JPEGs: the exported cover first, then the editor
+  at work and the other export sizes.
 
-## Originality
+## Verify it
 
-All art and lettering here is original and drawn in code. No Rockstar
-Games logo, wordmark, official artwork, character or font is used
-anywhere in the app or its screenshots.
+```sh
+rm -rf /tmp/out1 /tmp/out2
+MAKEFUN_OUTPUT_DIR=/tmp/out1 node main.ts
+MAKEFUN_OUTPUT_DIR=/tmp/out2 node main.ts
+diff -r /tmp/out1 /tmp/out2   # clean: both runs write identical bytes
+```
 
 ## License
 
-MIT — see [LICENSE](LICENSE). SPDX-License-Identifier: MIT.
+MIT — see [LICENSE](LICENSE).

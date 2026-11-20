@@ -3,93 +3,88 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Neon Sunset Cover Studio — GTA-style cover art from any photo</title>
-<meta name="description" content="Turn any photo and a caption into multi-panel GTA-style cover art, offline in your browser, and export it as a PNG in 1080 x 1080, 1080 x 1350 or 1920 x 1080.">
+<title>Neon Sunset Cover Studio — GTA-style cover art maker</title>
+<meta name="description" content="Turn your photos and a caption into GTA-style multi-panel cover art with a Vice City sunset grade. Offline, in your browser.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="topbar">
   <div class="brand">
-    <span class="brand-mark">☀</span>
-    <div>
-      <h1>Neon Sunset Cover Studio</h1>
-      <p class="tagline">Any photo. One caption. Poster-ready cover art — offline, no upload.</p>
-    </div>
+    <h1>Neon Sunset <span>Cover Studio</span></h1>
+    <p class="tagline">Your photos + a caption = GTA-style cover art. Offline, no uploads.</p>
   </div>
-  <div class="steps">
-    <span class="step"><b>1</b> Add photos</span>
-    <span class="step"><b>2</b> Pick a layout &amp; grade</span>
-    <span class="step"><b>3</b> Export a PNG</span>
+  <div class="top-actions">
+    <button id="export-png" type="button" class="primary-btn">Export PNG</button>
   </div>
 </header>
 
 <main class="layout">
-  <section class="preview-pane">
-    <canvas id="preview" width="960" height="540" aria-label="Live cover preview"></canvas>
-    <p class="hint">Drag a panel to reposition its photo · Scroll over a panel to zoom · The preview is the exact canvas the PNG export writes.</p>
-    <p id="status" class="status" role="status">Load a photo to begin, or try the samples.</p>
-  </section>
-
-  <aside class="controls">
-    <section class="card">
-      <h2>Photos</h2>
-      <label class="file-btn" for="fileInput">Add your photos…</label>
-      <input id="fileInput" type="file" accept="image/*" multiple hidden>
-      <button id="loadSamples" type="button" class="ghost-btn">Load sample photos</button>
-      <p class="fine">Photos are read on this machine and never leave it.</p>
-      <div class="mode-row">
-        <button id="modeMix" type="button" class="pick active">Mix photos across panels</button>
-        <button id="modeOne" type="button" class="pick">One photo everywhere</button>
+  <aside class="controls" aria-label="Cover controls">
+    <section class="control-block">
+      <h2>1 · Photos</h2>
+      <div class="row">
+        <label class="upload-btn" for="photo-upload">Add your photos</label>
+        <input id="photo-upload" type="file" accept="image/*" multiple hidden>
+        <button id="load-samples" type="button" class="ghost-btn">Load samples</button>
       </div>
-    </section>
-
-    <section class="card">
-      <h2>Layout</h2>
-      <div id="layoutRow" class="pick-grid"></div>
-    </section>
-
-    <section class="card">
-      <h2>Colour grade</h2>
-      <div id="gradeRow" class="pick-grid"></div>
-    </section>
-
-    <section class="card">
-      <h2>Caption</h2>
-      <label class="field-label" for="titleInput">Title</label>
-      <input id="titleInput" type="text" maxlength="24" value="NEON SHORE" autocomplete="off">
-      <label class="field-label" for="subtitleInput">Subtitle</label>
-      <input id="subtitleInput" type="text" maxlength="48" value="chase the sunset" autocomplete="off">
-      <label class="field-label" for="heatInput">Heat <span id="heatValue">4 / 5</span></label>
-      <input id="heatInput" type="range" min="0" max="5" step="1" value="4">
-    </section>
-
-    <section class="card">
-      <h2>Panel</h2>
-      <div class="field-row">
-        <label class="field-label" for="panelSelect">Panel</label>
-        <select id="panelSelect"></select>
-        <label class="field-label" for="panelPhoto">Photo</label>
-        <select id="panelPhoto"></select>
+      <p class="hint">Or drop image files onto the preview. Photos stay on your machine.</p>
+      <div class="row">
+        <button id="assign-one" type="button" class="toggle-btn">One photo</button>
+        <button id="assign-mix" type="button" class="toggle-btn active">Mix photos</button>
       </div>
-      <label class="field-label" for="zoomSlider">Zoom <span id="zoomValue">1.00x</span></label>
-      <input id="zoomSlider" type="range" min="1" max="3" step="0.01" value="1">
-      <label class="field-label" for="panXSlider">Pan left / right</label>
-      <input id="panXSlider" type="range" min="-0.8" max="0.8" step="0.01" value="0">
-      <label class="field-label" for="panYSlider">Pan up / down</label>
-      <input id="panYSlider" type="range" min="-0.8" max="0.8" step="0.01" value="0">
+      <div id="photo-selects" class="photo-selects"></div>
     </section>
 
-    <section class="card export-card">
-      <h2>Export</h2>
-      <div id="sizeRow" class="pick-grid"></div>
-      <button id="exportBtn" type="button" class="export-btn">Download PNG</button>
-      <p class="fine">Exports the cover at the exact size above — 1920 × 1080, 1080 × 1080 or 1080 × 1350.</p>
+    <section class="control-block">
+      <h2>2 · Layout &amp; grade</h2>
+      <h3>Layout</h3>
+      <div id="layout-options" class="opt-grid"></div>
+      <h3>Sunset grade</h3>
+      <div id="grade-options" class="opt-grid"></div>
+    </section>
+
+    <section class="control-block">
+      <h2>3 · Caption</h2>
+      <label class="field-label" for="title-input">Title</label>
+      <input id="title-input" type="text" value="NEON SHORE" maxlength="40" autocomplete="off">
+      <label class="field-label" for="subtitle-input">Subtitle</label>
+      <input id="subtitle-input" type="text" value="Vice City" maxlength="60" autocomplete="off">
+      <label class="field-label" for="badge-input">Badge</label>
+      <input id="badge-input" type="text" value="VICE CITY" maxlength="20" autocomplete="off">
+      <label class="field-label">Heat</label>
+      <div id="heat-stars" class="heat-stars" role="group" aria-label="Star heat meter"></div>
+    </section>
+
+    <section class="control-block">
+      <h2>4 · Crop the panel</h2>
+      <p id="panel-label" class="hint">Panel 1 of 4</p>
+      <div id="panel-list" class="panel-list"></div>
+      <label class="field-label" for="panel-zoom">Zoom</label>
+      <input id="panel-zoom" type="range" min="1" max="3" step="0.05" value="1">
+      <label class="field-label" for="panel-panx">Pan left / right</label>
+      <input id="panel-panx" type="range" min="0" max="1" step="0.01" value="0.5">
+      <label class="field-label" for="panel-pany">Pan up / down</label>
+      <input id="panel-pany" type="range" min="0" max="1" step="0.01" value="0.2">
+      <p class="hint">Tip: drag on the preview to pan, scroll to zoom. Click a panel to pick it.</p>
+    </section>
+
+    <section class="control-block">
+      <h2>5 · Export size</h2>
+      <div id="size-options" class="opt-grid"></div>
+      <p class="hint">PNG, exact post size: 1920 × 1080, 1080 × 1080 or 1080 × 1350.</p>
     </section>
   </aside>
+
+  <section class="stage">
+    <div id="drop-zone" class="drop-zone">
+      <canvas id="preview" width="960" height="540" aria-label="Cover preview"></canvas>
+    </div>
+    <p class="stage-hint">Live preview — what you see is the PNG you export.</p>
+  </section>
 </main>
 
 <footer class="foot">
-  <p>Neon Sunset Cover Studio — an original cover maker. All lettering is drawn with Anton and Pacifico under the SIL Open Font License; no Rockstar Games logo, artwork or font is used.</p>
+  <p>Neon Sunset Cover Studio · original art, lettering and grades. Fonts Bebas Neue and Caveat under the SIL Open Font License. Photos are yours; samples are model-made for this app.</p>
 </footer>
 
 <script src="cover.js"></script>
